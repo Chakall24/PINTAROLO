@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <!-- La web es una "película": el scroll hace de botón de reproducción (y hay un mini botón play/stop).
+       Tiene también una versión normal con el mismo HTML, para consultar la carta de un vistazo:
+       se abre con index.html?estatico=1, y es la que ve quien pide menos movimiento en su sistema o no tiene JavaScript. -->
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Pintarolo, cafetería en Salamanca</title>
+  <meta name="description" content="Cafetería Pintarolo en la avenida de Filiberto Villalobos, 65, Salamanca. Café con tapa, bocadillos, platos combinados y raciones de lunes a viernes.">
+
+  <meta name="robots" content="noindex">
+  <!-- IMPORTANTE: esto es una propuesta, no la web oficial. "noindex" le pide a Google que NO la muestre en búsquedas.
+       Si el dueño acepta y la publicas como web oficial, borra esta línea. -->
+
+  <meta name="theme-color" content="#1F5A33">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Pintarolo, cafetería en Salamanca">
+  <meta property="og:description" content="Café con tapa, bocadillos y platos combinados en la avenida de Filiberto Villalobos, 65.">
+  <meta property="og:locale" content="es_ES">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%231F5A33'/%3E%3Ctext x='32' y='49' text-anchor='middle' font-family='Arial Black,Arial,sans-serif' font-weight='900' font-size='44' fill='%23fff'%3EP%3C/text%3E%3Ccircle cx='50' cy='15' r='6' fill='%237DAF3F'/%3E%3C/svg%3E">
+
+  <script>
+    // Se decide aquí, antes de pintar nada, para que no haya un parpadeo al cambiar de versión.
+    // Sin JavaScript esta línea no corre y se ve la versión normal: nadie se queda sin la carta.
+    (function () {
+      var calma = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      var estatico = /[?&]estatico\b/.test(location.search);
+      if (!calma && !estatico) document.documentElement.classList.add("pelicula");
+    })();
+  </script>
+
+  <link rel="preload" href="assets/fonts/BigShouldersDisplay-900.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="assets/fonts/PublicSans-400.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="assets/css/estilos.css">
+</head>
+
+<body>
+  <p class="aviso" id="aviso">Propuesta de diseño para Pintarolo, preparada por Miguel Cebrián. No es la web oficial del local. Fotos simuladas.</p>
+  <!-- Franja de aviso: deja claro que es una propuesta y que las fotos no son reales.
+       Se borra si el dueño la contrata (y entonces hay que poner fotos reales de su comida). -->
+
+  <header class="contenedor cabecera">
+    <nav class="menu" aria-label="Secciones">
+      <a href="#con-tapa">Con tapa</a>
+      <a href="#aperitivo">Aperitivo</a>
+      <a href="#platos-combinados">Platos</a>
+      <a href="#bocadillos">Bocadillos</a>
+      <a href="#hamburguesas">Hamburguesas</a>
+      <a href="#raciones">Raciones</a>
+      <a href="#donde">Dónde estamos</a>
+      <a href="#horario">Horario</a>
+    </nav>
+    <a class="boton boton-pequeno" href="tel:+34692195214">Llamar</a>
+  </header>
+
+  <main id="pelicula">
+    <!-- #escenario es la "pantalla de cine": se queda fija mientras bajas (position: sticky)
+         y GSAP cambia lo que hay dentro según cuánto hayas bajado. -->
+    <div id="escenario">
+
+      <!-- El cielo: fondos de color que se funden unos con otros. El día pasa de la mañana a la noche. -->
+      <div class="cielo cielo-crema" aria-hidden="true"></div>
+      <div class="cielo cielo-claro" aria-hidden="true"></div>
+      <div class="cielo cielo-verde" aria-hidden="true"></div>
+      <div class="cielo cielo-arena" aria-hidden="true"></div>
+      <div class="cielo cielo-oscuro" aria-hidden="true"></div>
+      <div class="cielo cielo-noche" aria-hidden="true"></div>
+
+      <canvas id="capa-atras" class="capa" aria-hidden="true"></canvas>
+      <!-- Lienzo con granos, aceitunas, patatas... que caen por detrás de los platos. -->
+
+      <!-- ===================== 7:30 · PORTADA ===================== -->
+      <section id="inicio" class="escena tema-crema">
+        <h1 class="rotulo"><span class="r-a">Pinta</span><span class="r-b">rolo</span></h1>
+        <div class="portada-textos">
+          <div class="portada-izq">
+            <p class="portada-sitio">Cafetería en la avenida de Filiberto Villalobos, 65, Salamanca</p>
+            <p class="portada-lema">Café con tapa, bocadillos y platos combinados, de lunes a viernes de 7:30 a 22:00.</p>
+            <!-- OJO: esta frase es texto fijo. Si cambian los días o las horas, cámbiala también aquí a mano. -->
+            <a class="enlace-texto solo-pelicula" href="index.html?estatico=1#con-tapa">Ver la carta de un vistazo</a>
+            <!-- Quien solo quiere mirar un precio no tiene por qué ver la película entera. -->
+          </div>
+          <div class="portada-der">
+            <p class="estado" aria-live="polite">
+              <span class="punto" aria-hidden="true"></span>
+              <span data-estado-texto>De lunes a viernes</span>
+            </p>
+            <p class="estado-detalle" data-estado-detalle>De 7:30 a 22:00</p>
+
+            <!-- Barra de la jornada: en la película este papel lo hace el reproductor de abajo,
+                 así que esta solo se ve en la versión sin animación. -->
+            <div class="jornada solo-estatico">
+              <div class="jornada-barra" id="barra" role="img" aria-label="Horario de 7:30 a 22:00">
+                <div class="jornada-capa capa-clara" id="capa-clara" aria-hidden="true"></div>
+                <div class="jornada-capa capa-oscura" id="capa-oscura" aria-hidden="true" hidden></div>
+                <span class="jornada-marca" id="marca" hidden></span>
+              </div>
+              <div class="jornada-horas" id="horas">
+                <span class="hora-apertura" id="hora-apertura">7:30</span>
+                <span class="hora-cierre" id="hora-cierre">22:00</span>
+              </div>
+            </div>
+
+            <div class="acciones">
+              <a class="boton" href="tel:+34692195214">Llamar al 692 19 52 14</a>
+              <a class="boton boton-secundario" href="https://www.google.com/maps/dir/?api=1&amp;destination=Pintarolo%2C%20Av.%20de%20Filiberto%20Villalobos%2065%2C%2037007%20Salamanca&amp;destination_place_id=ChIJAbfbOjsmPw0RlwZYUGMhJ7A" target="_blank" rel="noopener">Cómo llegar</a>
+            </div>
+          </div>
+        </div>
+        <p class="pista solo-pelicula" aria-hidden="true"><span class="pista-flecha"></span>Baja: el scroll es el play</p>
+      </section>
+
+      <!-- Índice de la carta, solo en la versión normal. Se queda pegado arriba (sticky) mientras bajas,
+           para saltar de los bocadillos a las raciones sin tener que hacer scroll por todo. -->
+      <nav class="carta-indice solo-estatico" aria-label="Secciones de la carta">
+        <a href="#con-tapa">Con tapa</a>
+        <a href="#aperitivo">Aperitivo</a>
+        <a href="#platos-combinados">Platos combinados</a>
+        <a href="#bocadillos">Bocadillos</a>
+        <a href="#hamburguesas">Hamburguesas y sándwiches</a>
+        <a href="#raciones">Raciones</a>
+        <a href="#donde">Dónde estamos</a>
+      </nav>
+
+      <!-- ===================== CON TAPA ===================== -->
+      <section id="carta" class="escena escena-tapa tema-crema">
+        <p class="gigante gigante-tapa solo-pelicula" aria-hidden="true">Con tapa</p>
+
+        <figure class="pieza pieza-cafe" data-seq="cafe" data-n="60" aria-hidden="true">
+          <img src="assets/frames/cafe/600/0059.webp" alt="" width="600" height="600" loading="lazy">
+          <!-- La espuma en primer plano va DENTRO de la taza: al ampliar la taza, las dos crecen a la vez y encajan siempre.
+               Así la cámara "entra" en el café con nitidez, y de ahí salimos al mediodía. -->
+          <div class="espuma solo-pelicula"><img src="assets/frames/espuma/espuma.webp" alt=""></div>
+        </figure>
+        <figure class="pieza pieza-croissant" data-seq="croissant" data-n="24" aria-hidden="true">
+          <img src="assets/frames/croissant/600/0012.webp" alt="" width="600" height="600" loading="lazy">
+        </figure>
+
+        <div class="carta-intro">
+          <h2 class="titulo">La carta</h2>
+          <p class="entradilla">Del café con tapa al plato combinado, con los precios de la carta del local.</p>
+          <a class="enlace-texto solo-pelicula" href="index.html?estatico=1#con-tapa">Ver la carta sin animación</a>
+        </div>
+
+        <!-- ==================================================================
+             PRECIOS: sacados de fotos de Google Maps. Hay que confirmarlos con el dueño antes de enseñar la web.
+             - "Con tapa": pizarra de la puerta (foto de octubre de 2026).
+             - Platos combinados, hamburguesas, sándwiches y raciones: carta con los precios en rojo (la más reciente).
+             - Bocadillos: cartel de la calle (foto de 2023). Son los más dudosos: en ese cartel la ración de jamón
+               aún costaba 15,50 € y en la carta roja ya cuesta 16,50 €, así que pueden haber subido.
+             Para cambiar un precio, busca el plato y cambia el número. "&nbsp;" es un espacio que no se parte:
+             así el "€" nunca se queda solo en la línea de abajo.
+             ================================================================== -->
+        <section class="tapa" id="con-tapa" aria-labelledby="t-tapa">
+          <h3 class="tapa-titulo" id="t-tapa">Con tapa</h3>
+          <ul class="tapa-ofertas" role="list">
+            <li class="tapa-oferta"><span class="tapa-precio">2,60&nbsp;€</span><span class="tapa-que">Café, agua o caña</span></li>
+            <li class="tapa-oferta"><span class="tapa-precio">3,40&nbsp;€</span><span class="tapa-que">Refresco o zumo</span></li>
+          </ul>
+        </section>
+      </section>
+
+      <!-- ===================== 12:00 · APERITIVO ===================== -->
+      <section id="aperitivo" class="escena escena-aperitivo tema-claro">
+        <p class="gigante gigante-aperitivo solo-pelicula" aria-hidden="true">Aperitivo</p>
+        <div class="aperitivo-texto">
+          <h3 class="titulo">Pinchos y tapas, en la barra</h3>
+          <p class="entradilla">Imágenes simuladas. Los pinchos de cada día, los verás en el local.</p>
+          <!-- OJO: el texto no nombra pinchos concretos a propósito. Cuando el dueño diga cuáles hace, se pueden añadir. -->
+        </div>
+        <div class="desfile">
+          <figure class="pieza pieza-pincho" data-seq="tortilla" data-n="24" aria-hidden="true"><img src="assets/frames/tortilla/600/0012.webp" alt="" width="600" height="600" loading="lazy"></figure>
+          <figure class="pieza pieza-pincho" data-seq="jamon" data-n="24" aria-hidden="true"><img src="assets/frames/jamon/600/0012.webp" alt="" width="600" height="600" loading="lazy"></figure>
+          <figure class="pieza pieza-pincho" data-seq="empanada" data-n="24" aria-hidden="true"><img src="assets/frames/empanada/600/0012.webp" alt="" width="600" height="600" loading="lazy"></figure>
+          <figure class="pieza pieza-pincho" data-seq="moruno" data-n="24" aria-hidden="true"><img src="assets/frames/moruno/600/0012.webp" alt="" width="600" height="600" loading="lazy"></figure>
+        </div>
+      </section>
+
+      <!-- ===================== 13:30 · COMIDAS ===================== -->
+      <section id="comidas" class="escena escena-plato tema-verde">
+        <p class="gigante gigante-comidas solo-pelicula" aria-hidden="true">Comidas</p>
+        <figure class="pieza pieza-plato" data-seq="plato" data-n="72" aria-hidden="true">
+          <img src="assets/frames/plato/600/0071.webp" alt="" width="600" height="600" loading="lazy">
+        </figure>
+        <section class="hoja hoja-derecha categoria" id="platos-combinados" aria-labelledby="t-platos">
+          <h3 class="categoria-titulo" id="t-platos">Platos combinados</h3>
+          <div class="visor"><div class="rollo">
+            <ol class="lista-carta numerada" role="list">
+              <!-- <ol> (lista numerada) porque en el bar se piden por número. El número lo pone el CSS solo. -->
+              <li class="plato"><span class="plato-nombre">Lomo, huevo, patatas y ensalada</span><span class="plato-precio">5,50&nbsp;€</span></li>
+              <li class="plato"><span class="plato-nombre">Pechuga, patatas, espárragos y ensalada</span><span class="plato-precio">5,50&nbsp;€</span></li>
+              <li class="plato"><span class="plato-nombre">Bistec de ternera, huevos y patatas</span><span class="plato-precio">6,00&nbsp;€</span></li>
+              <li class="plato"><span class="plato-nombre">Bacón, huevos, salchichas y patatas</span><span class="plato-precio">5,50&nbsp;€</span></li>
+              <li class="plato"><span class="plato-nombre">Hamburguesa, huevo, patatas y ensalada</span><span class="plato-precio">5,50&nbsp;€</span></li>
+              <li class="plato"><span class="plato-nombre">Cruceta, huevos, patatas y ensalada</span><span class="plato-precio">5,50&nbsp;€</span></li>
+              <li class="plato"><span class="plato-nombre">Panceta, huevos, salchichas y patatas</span><span class="plato-precio">5,50&nbsp;€</span></li>
+              <li class="plato"><span class="plato-nombre">Pinchos morunos, patatas y ensalada</span><span class="plato-precio">6,00&nbsp;€</span></li>
+              <li class="plato"><span class="plato-nombre">Chorizo criollo y rojo, huevos y patatas</span><span class="plato-precio">5,50&nbsp;€</span></li>
+              <li class="plato"><span class="plato-nombre">Calamares a la romana, croquetas, espárragos y ensalada</span><span class="plato-precio">6,00&nbsp;€</span></li>
+              <li class="plato"><span class="plato-nombre">Merluza a la romana, espárragos y ensalada</span><span class="plato-precio">6,00&nbsp;€</span></li>
+            </ol>
+            <p class="categoria-nota">Si prefieres otra combinación, te la preparamos a tu gusto.</p>
+            <!-- Frase de su propia carta ("Si prefieres otra combinación te lo preparamos a tu gusto. Consúltanos"). -->
+          </div></div>
+        </section>
+      </section>
+
+      <!-- ===================== 16:30 · BOCADILLOS ===================== -->
+      <section id="tarde" class="escena escena-bocadillo tema-arena">
+        <p class="gigante gigante-bocadillos solo-pelicula" aria-hidden="true">Bocadillos</p>
+        <figure class="pieza pieza-bocadillo" data-seq="bocadillo" data-n="56" aria-hidden="true">
+          <img src="assets/frames/bocadillo/600/0055.webp" alt="" width="600" height="600" loading="lazy">
+        </figure>
+        <section class="hoja hoja-izquierda categoria" id="bocadillos" aria-labelledby="t-bocadillos">
+          <h3 class="categoria-titulo" id="t-bocadillos">Bocadillos</h3>
+          <div class="visor"><div class="rollo">
+            <h4 class="subcategoria">Calientes</h4>
+            <ul class="lista-carta" role="list">
+              <li class="plato"><span class="plato-nombre">Lomo</span><span class="plato-precio">4,50&nbsp;€</span></li>
+              <li class="plato"><span class="plato-nombre">Bacón</span><span class="plato-precio">4,50&nbsp;€</span></li>
+              <li class="plato"><span class="plato-nombre">Pechuga</span><span class="plato-precio">4,50&nbsp;€</span></li>
+              <li class="plato"><span class="plato-nombre">Cruceta</span><span class="plato-precio">4,50&nbsp;€</span></li>
+              <li class="plato"><span class="plato-nombre">Panceta</span><span class="plato-precio">4,50&nbsp;€</span></li>
+              <li class="plato"><span class="plato-nombre">Ternera</span><span class="plato-precio">5,00&nbsp;€</span></li>
+              <li class="plato"><span class="plato-nombre">Calamares</span><span class="plato-precio">4,50&nbsp;€</span></li>
+              <li class="plato"><span class="plato-nombre">Chorizo a la plancha</span><span class="plato-precio">4,50&nbsp;€</span></li>
+              <li class="plato"><span class="plato-nombre">Chorizo criollo</span><span class="plato-precio">4,50&nbsp;€</span></li>
+              <li class="plato"><span class="plato-nombre">Tortilla francesa</span><span class="plato-precio">4,50&nbsp;€</span></li>
+              <li class="plato"><span class="plato-nombre">Tortilla francesa al gusto</span><span class="plato-precio">4,50&nbsp;€</span></li>
+            </ul>
+            <h4 class="subcategoria">Fríos</h4>
+            <ul class="lista-carta" role="list">
+              <li class="plato"><span class="plato-nombre">Jamón ibérico</span><span class="plato-precio">5,50&nbsp;€</span></li>
+              <li class="plato"><span class="plato-nombre">Lomo embuchado ibérico</span><span class="plato-precio">5,50&nbsp;€</span></li>
+              <li class="plato"><span class="plato-nombre">Chorizo ibérico</span><span class="plato-precio">5,00&nbsp;€</span></li>
+              <li class="plato"><span class="plato-nombre">Salchichón ibérico</span><span class="plato-precio">5,00&nbsp;€</span></li>
+              <li class="plato"><span class="plato-nombre">Queso curado</span><span class="plato-precio">5,00&nbsp;€</span></li>
+              <li class="plato"><span class="plato-nombre">Jamón york y queso</span><span class="plato-precio">5,00&nbsp;€</span></li>
+            </ul>
+          </div></div>
+        </section>
+      </section>
+
+      <!-- ===================== HAMBURGUESAS Y SÁNDWICHES ===================== -->
+      <section id="noche" class="escena escena-burger tema-oscuro">
+        <p class="gigante gigante-burger solo-pelicula" aria-hidden="true">Hamburguesas</p>
+        <figure class="pieza pieza-burger" data-seq="burger" data-n="56" aria-hidden="true">
+          <img src="assets/frames/burger/600/0004.webp" alt="" width="600" height="600" loading="lazy">
+        </figure>
+        <section class="hoja hoja-derecha categoria" id="hamburguesas" aria-labelledby="t-hamburguesas">
+          <h3 class="categoria-titulo" id="t-hamburguesas">Hamburguesas y sándwiches</h3>
+          <div class="visor"><div class="rollo">
+            <h4 class="subcategoria">Hamburguesas</h4>
+            <ul class="lista-carta" role="list">
+              <li class="plato"><span class="plato-nombre">Normal</span><span class="plato-precio">4,50&nbsp;€</span></li>
+              <li class="plato"><span class="plato-nombre">Con queso</span><span class="plato-precio">5,00&nbsp;€</span></li>
+              <li class="plato"><span class="plato-nombre">Con bacón</span><span class="plato-precio">5,00&nbsp;€</span></li>
+              <li class="plato"><span class="plato-nombre">De pollo</span><span class="plato-precio">5,00&nbsp;€</span></li>
+              <li class="plato"><span class="plato-nombre">Especial Pintarolo</span><span class="plato-precio">6,50&nbsp;€</span></li>
+            </ul>
+            <h4 class="subcategoria">Sándwiches</h4>
+            <ul class="lista-carta" role="list">
+              <li class="plato"><span class="plato-nombre">Mixto</span><span class="plato-precio">4,00&nbsp;€</span></li>
+              <li class="plato"><span class="plato-nombre">Vegetal</span><span class="plato-precio">4,00&nbsp;€</span></li>
+              <li class="plato"><span class="plato-nombre">De pollo</span><span class="plato-precio">4,00&nbsp;€</span></li>
+              <li class="plato"><span class="plato-nombre">Especial Pintarolo</span><span class="plato-precio plato-consultar">Consultar</span></li>
+              <!-- En la foto, el precio del sándwich especial no se lee (hay un reflejo). Pregúntaselo al dueño. -->
+            </ul>
+            <p class="categoria-nota">Añade los ingredientes que quieras: tomate, queso, lechuga, pimiento…</p>
+          </div></div>
+        </section>
+      </section>
+
+      <!-- ===================== RACIONES ===================== -->
+      <section id="tabla" class="escena escena-racion tema-noche">
+        <p class="gigante gigante-raciones solo-pelicula" aria-hidden="true">Raciones</p>
+        <figure class="pieza pieza-racion" data-seq="racion" data-n="56" aria-hidden="true">
+          <img src="assets/frames/racion/600/0055.webp" alt="" width="600" height="600" loading="lazy">
+        </figure>
+        <section class="hoja hoja-izquierda categoria" id="raciones" aria-labelledby="t-raciones">
+          <h3 class="categoria-titulo" id="t-raciones">Raciones</h3>
+          <div class="visor"><div class="rollo">
+            <table class="raciones">
+              <thead>
+                <tr>
+                  <th scope="col"><span class="oculto">Producto</span></th>
+                  <th scope="col">Ración</th>
+                  <th scope="col">Media</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><th scope="row">Jamón ibérico</th><td>16,50&nbsp;€</td><td>9,00&nbsp;€</td></tr>
+                <tr><th scope="row">Lomo embuchado ibérico</th><td>16,50&nbsp;€</td><td>9,00&nbsp;€</td></tr>
+                <tr><th scope="row">Chorizo ibérico</th><td>8,00&nbsp;€</td><td>4,00&nbsp;€</td></tr>
+                <tr><th scope="row">Salchichón ibérico</th><td>8,00&nbsp;€</td><td>4,00&nbsp;€</td></tr>
+                <tr><th scope="row">Queso curado</th><td>8,00&nbsp;€</td><td>4,50&nbsp;€</td></tr>
+              </tbody>
+            </table>
+            <p class="nota-carta">Precios orientativos. Los que valen son los del local.</p>
+          </div></div>
+        </section>
+      </section>
+
+      <!-- ===================== 22:00 · CIERRE ===================== -->
+      <section id="cierre" class="escena escena-cierre tema-noche solo-pelicula">
+        <p class="cierre-hora" aria-hidden="true">22:00</p>
+        <p class="cierre-rotulo" aria-hidden="true">Pintarolo</p>
+        <p class="cierre-texto">De lunes a viernes, de 7:30 a 22:00.</p>
+        <p class="estado">
+          <span class="punto" aria-hidden="true"></span>
+          <span data-estado-texto>De lunes a viernes</span>
+        </p>
+        <p class="estado-detalle" data-estado-detalle>De 7:30 a 22:00</p>
+        <a class="cierre-seguir" href="#donde"><span class="pista-flecha"></span>Dónde estamos</a>
+      </section>
+
+      <canvas id="capa-delante" class="capa" aria-hidden="true"></canvas>
+      <!-- Lienzo delantero: vapor del café y piezas desenfocadas muy cerca de la cámara. -->
+      <div class="grano-pelicula" aria-hidden="true"></div>
+      <!-- Un grano muy suave de fotografía por encima de todo: es lo que "cose" las capas y le da aire de película. -->
+    </div>
+  </main>
+
+  <!-- A partir de aquí ya no es película: es una página normal para consultar con calma. -->
+  <section id="donde" class="seccion tema-noche">
+    <div class="contenedor donde">
+      <div>
+        <h2 class="titulo">Dónde estamos</h2>
+        <address class="direccion">Av. de Filiberto Villalobos, 65<br>37007 Salamanca</address>
+        <p class="referencia">A un paso de la estación de autobuses.</p>
+
+        <table class="horario" id="horario">
+          <caption>Horario</caption>
+          <tbody>
+            <!-- data-dia: 1 = lunes ... 6 = sábado, 0 = domingo (así numera los días JavaScript).
+                 Las horas de cada fila las reescribe el JavaScript a partir de los datos del negocio. -->
+            <tr data-dia="1"><th scope="row">Lunes</th><td>7:30–22:00</td></tr>
+            <tr data-dia="2"><th scope="row">Martes</th><td>7:30–22:00</td></tr>
+            <tr data-dia="3"><th scope="row">Miércoles</th><td>7:30–22:00</td></tr>
+            <tr data-dia="4"><th scope="row">Jueves</th><td>7:30–22:00</td></tr>
+            <tr data-dia="5"><th scope="row">Viernes</th><td>7:30–22:00</td></tr>
+            <tr data-dia="6"><th scope="row">Sábado</th><td>Cerrado</td></tr>
+            <tr data-dia="0"><th scope="row">Domingo</th><td>Cerrado</td></tr>
+          </tbody>
+        </table>
+
+        <div class="botones-donde">
+          <a class="boton" href="https://www.google.com/maps/dir/?api=1&amp;destination=Pintarolo%2C%20Av.%20de%20Filiberto%20Villalobos%2065%2C%2037007%20Salamanca&amp;destination_place_id=ChIJAbfbOjsmPw0RlwZYUGMhJ7A" target="_blank" rel="noopener">Cómo llegar</a>
+          <a class="boton boton-secundario" href="tel:+34692195214">692 19 52 14</a>
+        </div>
+      </div>
+
+      <div class="mapa mapa-aviso" id="mapa">
+        <!-- El mapa de Google se carga solo si el visitante lo pide: pesa mucho y guarda cookies de Google,
+             y en España las cookies que no son imprescindibles necesitan permiso. Con este botón, ese permiso es el propio clic. -->
+        <svg class="mapa-pin" width="40" height="40" viewBox="0 0 24 24" aria-hidden="true">
+          <path fill="currentColor" d="M12 2a7 7 0 0 0-7 7c0 5.25 7 13 7 13s7-7.75 7-13a7 7 0 0 0-7-7zm0 9.5a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5z"/>
+        </svg>
+        <p>El mapa es de Google Maps y solo se carga si lo pides. Al cargarlo, Google puede guardar cookies en tu navegador.</p>
+        <button type="button" class="boton" id="cargar-mapa">Ver el mapa</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="seccion tema-noche seccion-opiniones" aria-label="Opiniones">
+    <div class="contenedor opiniones">
+      <p class="opiniones-texto">Más de 650 opiniones en Google, con un 4,3 de media.</p>
+      <a class="boton boton-secundario" href="https://www.google.com/maps?cid=12693150785200457367" target="_blank" rel="noopener">Leer las opiniones en Google</a>
+      <!-- Enlaza a las reseñas reales en vez de copiarlas: así siempre están actualizadas y nadie puede pensar que son inventadas. -->
+    </div>
+  </section>
+
+  <footer class="pie tema-noche">
+    <div class="contenedor">
+      <span class="pie-marca">Pintarolo</span>
+      <p>Av. de Filiberto Villalobos, 65, 37007 Salamanca</p>
+      <p><a href="tel:+34692195214">692 19 52 14</a></p>
+      <p><a href="https://www.facebook.com/people/Cafeteria-Pintarolo/100009357880929" target="_blank" rel="noopener">Facebook</a></p>
+      <p><a class="solo-pelicula" href="index.html?estatico=1">Ver la carta sin animación</a><a class="solo-estatico" href="index.html">Ver la versión animada</a></p>
+      <p>Propuesta de web diseñada por Miguel Cebrián. Las imágenes de comida son simulaciones generadas por ordenador, no fotos del local.</p>
+    </div>
+  </footer>
+
+  <!-- Mini botón play/stop: reproduce la película sola (la página baja a velocidad constante) y la para.
+       El resto lo hace el scroll. -->
+  <button type="button" class="play solo-pelicula" id="play" aria-pressed="false" aria-label="Reproducir la película">
+    <svg class="icono-play" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M8 5v14l11-7z"/></svg>
+    <svg class="icono-stop" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><rect x="6" y="6" width="12" height="12" rx="1.5" fill="currentColor"/></svg>
+  </button>
+
+  <nav class="barra-movil" aria-label="Acciones rápidas">
+    <a class="boton" href="tel:+34692195214">Llamar</a>
+    <a class="boton boton-secundario" href="https://www.google.com/maps/dir/?api=1&amp;destination=Pintarolo%2C%20Av.%20de%20Filiberto%20Villalobos%2065%2C%2037007%20Salamanca&amp;destination_place_id=ChIJAbfbOjsmPw0RlwZYUGMhJ7A" target="_blank" rel="noopener">Cómo llegar</a>
+  </nav>
+
+  <script src="assets/js/local.js"></script>
+  <script>
+    // GSAP y la película solo se descargan en la demo animada: la versión normal no los necesita y carga más rápido.
+    // async = false hace que se ejecuten en orden (primero GSAP, luego ScrollTrigger y al final la película).
+    if (document.documentElement.classList.contains("pelicula")) {
+      ["assets/js/gsap.min.js", "assets/js/ScrollTrigger.min.js", "assets/js/pelicula.js"].forEach(function (src) {
+        var s = document.createElement("script");
+        s.src = src;
+        s.async = false;
+        s.onerror = function () { document.documentElement.classList.remove("pelicula"); };  // si algo falla, versión normal
+        document.body.appendChild(s);
+      });
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,765 @@
+/* =====================================================================
+   estilos.css: decide CÓMO SE VE todo.
+   Está escrito en dos capas:
+   1. La base: la página normal (móvil primero). Es lo que se ve sin JavaScript, con "reducir movimiento"
+      o con index.html?estatico=1, y siempre se puede leer la carta entera.
+   2. ".pelicula": lo que cambia cuando la página se convierte en película (la versión principal).
+   ===================================================================== */
+
+/* ---------- Tipografías (Big Shoulders Display y Public Sans, licencia SIL Open Font) ----------
+   Están en nuestra propia carpeta: así la web no avisa a Google de cada visita y funciona sin depender de otros. */
+@font-face { font-family: "Big Shoulders Display"; font-weight: 800; font-style: normal; font-display: swap; src: url(../fonts/BigShouldersDisplay-800.woff2) format("woff2"); }
+@font-face { font-family: "Big Shoulders Display"; font-weight: 900; font-style: normal; font-display: swap; src: url(../fonts/BigShouldersDisplay-900.woff2) format("woff2"); }
+@font-face { font-family: "Public Sans"; font-weight: 400; font-style: normal; font-display: swap; src: url(../fonts/PublicSans-400.woff2) format("woff2"); }
+@font-face { font-family: "Public Sans"; font-weight: 600; font-style: normal; font-display: swap; src: url(../fonts/PublicSans-600.woff2) format("woff2"); }
+@font-face { font-family: "Public Sans"; font-weight: 700; font-style: normal; font-display: swap; src: url(../fonts/PublicSans-700.woff2) format("woff2"); }
+
+/* ---------- 1. Colores ----------
+   Los verdes salen de la marca real del local: su logo, su carta y el cartel de la calle son verdes.
+   Cada escena elige su "tema": así un mismo botón o título funciona sobre cualquier fondo de la película. */
+:root {
+  --f-rotulo: "Big Shoulders Display", "Arial Narrow", Impact, sans-serif;
+  --f-texto: "Public Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --hueco-izq: max(20px, env(safe-area-inset-left));
+  --hueco-der: max(20px, env(safe-area-inset-right));
+  --abierto: #23A055;
+  --cerrado: #8F988C;
+  --barra-pasado: #E9F2E0;
+  --barra-pasado-texto: #1F5A33;
+  --barra-queda: #1F5A33;
+  --barra-queda-texto: #E9F2E0;
+  --pizarra: #1F5A33;
+  --aviso: 30px;
+}
+
+.tema-crema, .tema-claro, .tema-arena, .hoja {
+  --papel: #FFFFFF;
+  --papel-2: #E9F2E0;
+  --tinta: #1F5A33;
+  --tinta-suave: #2B7243;
+  --texto: #1C251E;
+  --texto-2: #56625A;
+  --linea: #D8E1D2;
+}
+.tema-crema { --fondo: #F6F1E4; --gigante: #1F5A33; }
+.tema-claro { --fondo: #E4EFD6; --gigante: rgba(31, 90, 51, 0.13); }
+.tema-arena { --fondo: #EFD9A8; --gigante: rgba(109, 72, 22, 0.16); --texto-2: #4F4A32; }
+.tema-verde, .tema-oscuro, .tema-noche {
+  --papel: #0E1811;
+  --papel-2: #142219;
+  --tinta: #B5DB9C;
+  --tinta-suave: #CFEABD;
+  --texto: #ECF3EA;
+  --texto-2: #B4C2B6;
+  --linea: rgba(236, 243, 234, 0.2);
+}
+.tema-verde { --fondo: #2B7243; --gigante: rgba(255, 255, 255, 0.12); }
+.tema-oscuro { --fondo: #1F5A33; --gigante: rgba(255, 255, 255, 0.1); }
+.tema-noche { --fondo: #0E1811; --gigante: rgba(181, 219, 156, 0.08); }
+.hoja { --fondo: #FFFFFF; }
+
+/* ---------- 2. Reglas generales ---------- */
+*, *::before, *::after { box-sizing: border-box; }
+html { background: #0E1811; }
+body {
+  margin: 0;
+  background: #0E1811;
+  color: #1C251E;
+  font-family: var(--f-texto);
+  font-size: 1.0625rem;
+  line-height: 1.55;
+  padding-bottom: calc(76px + env(safe-area-inset-bottom));  /* hueco para la barra fija del móvil */
+  overflow-x: clip;
+}
+a { color: inherit; }
+button { font: inherit; cursor: pointer; }
+:focus-visible { outline: 3px solid currentColor; outline-offset: 3px; border-radius: 4px; }
+.oculto { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.contenedor { max-width: 1100px; margin-left: auto; margin-right: auto; padding-left: var(--hueco-izq); padding-right: var(--hueco-der); }
+
+/* Lo que solo existe en una de las dos versiones. */
+.solo-pelicula { display: none !important; }
+.pelicula .solo-estatico { display: none !important; }
+.pelicula .solo-pelicula { display: revert !important; }
+.pelicula .play.solo-pelicula { display: grid !important; }
+.pelicula .escena-cierre.solo-pelicula { display: flex !important; }
+.pelicula .gigante.solo-pelicula, .pelicula .espuma.solo-pelicula { display: block !important; }
+.pelicula .pista.solo-pelicula { display: flex !important; }
+.pelicula .enlace-texto.solo-pelicula { display: inline-block !important; }
+
+/* ---------- 3. Aviso de propuesta ---------- */
+.aviso {
+  margin: 0;
+  padding: 8px var(--hueco-der) 8px var(--hueco-izq);
+  background: #1F5A33;
+  color: #FFFFFF;
+  font-size: 0.875rem;
+  text-align: center;
+}
+
+/* ---------- 4. Cabecera (solo en pantallas grandes) ---------- */
+.cabecera { display: none; }
+.menu { display: flex; flex-wrap: wrap; gap: 6px 18px; }
+.menu a { text-decoration: none; font-weight: 600; font-size: 0.875rem; color: #33413A; }
+.menu a:hover { color: #1F5A33; text-decoration: underline; text-underline-offset: 4px; }
+
+/* ---------- 5. Botones ---------- */
+.boton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  padding: 0 22px;
+  border-radius: 999px;
+  background: var(--tinta, #1F5A33);
+  color: var(--papel, #FFFFFF);
+  border: 2px solid var(--tinta, #1F5A33);
+  font-weight: 700;
+  text-decoration: none;
+  transition: background-color 0.15s, border-color 0.15s;
+}
+.boton:hover { background: var(--tinta-suave, #2B7243); border-color: var(--tinta-suave, #2B7243); }
+.boton-secundario { background: transparent; color: var(--tinta, #1F5A33); }
+.boton-secundario:hover { background: var(--papel-2, #E9F2E0); border-color: var(--tinta, #1F5A33); }
+.boton-pequeno { min-height: 40px; padding: 0 18px; font-size: 0.9375rem; }
+
+/* ---------- 6. Escenas en la versión normal (apiladas, como una página) ---------- */
+.escena, .seccion, .pie { background: var(--fondo); color: var(--texto); }
+.escena { position: relative; padding: 44px var(--hueco-der) 44px var(--hueco-izq); overflow: hidden; }
+.pieza { margin: 0 auto; max-width: 520px; }
+.pieza img { display: block; width: 100%; height: auto; }
+.pieza canvas { display: none; }
+.cielo, .capa, .gigante, .espuma, .grano-pelicula { display: none; }
+
+/* ---------- Versión normal: primero la información, la imagen acompaña ----------
+   "html:not(.pelicula)" = estas reglas solo valen en la versión normal, así no estorban a la película. */
+html:not(.pelicula) { scroll-behavior: smooth; }   /* al pulsar el índice, la página baja suavemente */
+html:not(.pelicula) .escena {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding-left: max(var(--hueco-izq), calc((100% - 1060px) / 2));   /* contenido centrado, fondo de borde a borde */
+  padding-right: max(var(--hueco-der), calc((100% - 1060px) / 2));
+}
+html:not(.pelicula) :is(.escena, .categoria, .tapa) { scroll-margin-top: 64px; }  /* que el índice pegado no tape el título */
+html:not(.pelicula) .pieza { width: 100%; max-width: 520px; }
+/* La foto se recorta a una franja apaisada: el plato se ve entero y no empuja la carta hacia abajo. */
+html:not(.pelicula) .pieza img { height: clamp(170px, 48vw, 250px); object-fit: cover; }
+html:not(.pelicula) .pieza-croissant { display: none; }   /* una imagen por sección es suficiente */
+html:not(.pelicula) .carta-intro { order: 1; }
+html:not(.pelicula) .tapa { order: 2; width: 100%; max-width: 640px; margin: 0; }
+html:not(.pelicula) .pieza-cafe { order: 3; }
+html:not(.pelicula) .carta-intro .titulo { margin-bottom: 4px; }
+html:not(.pelicula) .carta-intro .entradilla { margin: 0; }
+html:not(.pelicula) .hoja { width: 100%; margin: 0; }
+html:not(.pelicula) .aperitivo-texto .entradilla { margin: 0; }
+html:not(.pelicula) .desfile { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+html:not(.pelicula) .desfile .pieza img { height: clamp(120px, 34vw, 210px); }
+html:not(.pelicula) #inicio { padding-top: 20px; }
+
+/* Índice de la carta: se queda pegado arriba mientras bajas por la carta. */
+.carta-indice {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;         /* si no caben todos, se desliza de lado con el dedo (solo el índice, no la página) */
+  scrollbar-width: none;
+  padding: 10px var(--hueco-der) 10px var(--hueco-izq);
+  background: rgba(255, 255, 255, 0.95);
+  border-bottom: 1px solid #D8E1D2;
+}
+.carta-indice::-webkit-scrollbar { display: none; }
+.carta-indice a {
+  flex: none;
+  padding: 7px 14px;
+  border: 1.5px solid #D8E1D2;
+  border-radius: 999px;
+  background: #FFFFFF;
+  color: #1F5A33;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.carta-indice a:hover { border-color: #1F5A33; }
+
+.rotulo {
+  margin: 0 0 18px -0.04em;
+  font-family: var(--f-rotulo);
+  font-weight: 900;
+  text-transform: uppercase;
+  color: var(--tinta);
+  font-size: min(15rem, calc((100vw - 40px) * 0.225));
+  line-height: 0.82;
+}
+.rotulo span { display: inline-block; }
+.portada-sitio { margin: 0 0 6px; color: var(--texto-2); font-weight: 600; }
+.portada-lema { margin: 0 0 22px; font-size: clamp(1.125rem, 2.4vw, 1.375rem); max-width: 34ch; }
+.estado { display: flex; align-items: center; gap: 12px; margin: 0; font-family: var(--f-rotulo); font-weight: 800; font-size: clamp(1.875rem, 5vw, 2.625rem); line-height: 1.05; }
+.punto { width: 14px; height: 14px; border-radius: 50%; background: var(--cerrado); flex: none; }
+.esta-abierto .punto { background: var(--abierto); box-shadow: 0 0 0 5px color-mix(in srgb, var(--abierto) 22%, transparent); }
+.estado-detalle { margin: 6px 0 26px; color: var(--texto-2); }
+
+/* ---------- 7. Barra de la jornada ----------
+   Hay DOS capas iguales, una encima de la otra (una clara y una oscura). La oscura se recorta
+   para que solo se vea desde la raya hasta el final: por eso una palabra puede quedar mitad clara y mitad oscura. */
+.jornada-barra { --p: 0; position: relative; height: 44px; }
+.jornada-capa { position: absolute; inset: 0; display: grid; grid-auto-flow: column; border-radius: 10px; overflow: hidden; }
+.capa-clara { background: var(--barra-pasado); color: var(--barra-pasado-texto); }
+.capa-oscura { background: var(--barra-queda); color: var(--barra-queda-texto); clip-path: inset(0 0 0 calc(var(--p) * 100%)); }
+.capa-oscura[hidden] { display: none; }
+.tramo { display: flex; align-items: center; padding: 0 6px; min-width: 0; overflow: hidden; white-space: nowrap; font-size: 0.75rem; font-weight: 700; }
+.tramo + .tramo { box-shadow: inset 2px 0 0 color-mix(in srgb, currentColor 25%, transparent); }
+.tramo.sin-sitio span { visibility: hidden; }
+.jornada-marca { position: absolute; top: -8px; bottom: -8px; left: calc(var(--p) * 100%); width: 4px; margin-left: -2px; background: var(--tinta); border-radius: 2px; box-shadow: 0 0 0 2px var(--papel); }
+.jornada-marca[hidden] { display: none; }
+.jornada-marca::after {
+  content: attr(data-hora);
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 50%;
+  transform: translateX(calc(var(--p) * -100%));
+  padding: 2px 7px;
+  border-radius: 4px;
+  background: var(--tinta);
+  color: var(--papel);
+  font-size: 0.8125rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.jornada-horas { position: relative; height: 1.5em; margin-top: 10px; font-size: 0.875rem; font-weight: 600; color: var(--texto-2); font-variant-numeric: tabular-nums; }
+.jornada-horas span { position: absolute; top: 0; white-space: nowrap; }
+.hora-apertura { left: 0; }
+.hora-cierre { right: 0; }
+.hora-intermedia { display: none; transform: translateX(-50%); }
+.acciones { display: none; margin-top: 24px; gap: 12px; flex-wrap: wrap; }
+
+/* ---------- 8. Títulos y carta ---------- */
+.titulo { font-family: var(--f-rotulo); font-weight: 900; font-size: clamp(2.25rem, 6vw, 3.75rem); line-height: 0.95; color: var(--tinta); margin: 0 0 12px; text-transform: uppercase; }
+.entradilla { color: var(--texto-2); max-width: 56ch; margin: 0 0 16px; }
+.enlace-texto { font-weight: 700; font-size: 0.9375rem; color: var(--tinta); text-underline-offset: 3px; }
+
+.tapa { margin: 24px 0 0; padding: 26px 24px 28px; border-radius: 16px; background: var(--pizarra); color: #FFFFFF; }
+.tapa-titulo { margin: 0 0 16px; font-family: var(--f-rotulo); font-weight: 900; font-size: 2rem; line-height: 1; text-transform: uppercase; }
+.tapa-ofertas { list-style: none; margin: 0; padding: 0; display: grid; gap: 18px; }
+.tapa-oferta { display: flex; flex-direction: column; }
+.tapa-precio { font-family: var(--f-rotulo); font-weight: 900; font-size: clamp(3.25rem, 11vw, 4.75rem); line-height: 0.9; font-variant-numeric: tabular-nums; }
+.tapa-que { margin-top: 8px; font-weight: 600; color: #D5E8C4; }
+
+.hoja { max-width: 640px; margin: 0 auto; padding: 24px 22px 20px; background: #FFFFFF; color: var(--texto); border: 2px solid var(--tinta); border-radius: 18px; }
+.categoria-titulo { margin: 0 0 6px; padding-bottom: 8px; border-bottom: 2px solid var(--tinta); font-family: var(--f-rotulo); font-weight: 900; font-size: 2rem; line-height: 1; color: var(--tinta); text-transform: uppercase; }
+.subcategoria { margin: 18px 0 2px; font-size: 1rem; font-weight: 700; color: var(--tinta); }
+.lista-carta { list-style: none; margin: 0; padding: 0; }
+.plato { display: flex; align-items: baseline; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--linea); }
+.plato-nombre { order: 0; flex: 0 1 auto; }
+.plato::after { content: ""; order: 1; flex: 1 1 16px; border-bottom: 2px dotted var(--linea); }
+.plato-precio { order: 2; white-space: nowrap; font-weight: 700; font-variant-numeric: tabular-nums; }
+.plato-consultar { font-weight: 400; color: var(--texto-2); }
+.numerada { counter-reset: plato; }
+.numerada .plato { counter-increment: plato; }
+.numerada .plato::before { content: counter(plato); order: -1; flex: none; width: 1.6em; font-weight: 700; color: var(--tinta); font-variant-numeric: tabular-nums; }
+.categoria-nota { margin: 12px 0 0; font-size: 0.9375rem; color: var(--texto-2); }
+.raciones { width: 100%; border-collapse: collapse; }
+.raciones th, .raciones td { padding: 8px 0; border-bottom: 1px solid var(--linea); text-align: left; font-weight: 400; }
+.raciones thead th { padding-top: 6px; font-size: 0.875rem; font-weight: 600; color: var(--texto-2); }
+.raciones td, .raciones thead th + th { width: 5.5em; text-align: right; font-weight: 700; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.raciones thead th + th { font-weight: 600; }
+.nota-carta { margin: 12px 0 0; font-size: 0.9375rem; color: var(--texto-2); }
+
+/* ---------- 9. Dónde estamos ---------- */
+.seccion { padding: 64px 0; }
+.pelicula #donde { background: linear-gradient(#090F0B, var(--fondo) 240px); }  /* continúa el final de la película, sin corte */
+.seccion-opiniones { padding-top: 12px; }
+.donde { display: grid; gap: 36px; }
+.donde > * { min-width: 0; }
+.mapa { display: block; width: 100%; aspect-ratio: 4 / 3; border: 0; border-radius: 14px; background: var(--papel-2); }
+.mapa-aviso { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; padding: 24px; text-align: center; color: var(--texto-2); }
+.mapa-aviso p { margin: 0; max-width: 36ch; font-size: 0.9375rem; }
+.mapa-pin { color: var(--tinta); }
+.direccion { margin: 0 0 4px; font-size: 1.25rem; font-weight: 700; font-style: normal; }
+.referencia { margin: 0 0 20px; color: var(--texto-2); }
+.horario { width: 100%; border-collapse: collapse; margin: 0 0 24px; }
+.horario caption { text-align: left; font-weight: 700; font-size: 1.125rem; padding-bottom: 8px; color: var(--tinta); }
+.horario th, .horario td { padding: 10px 0; border-bottom: 1px solid var(--linea); font-weight: 400; text-align: left; }
+.horario td { text-align: right; font-variant-numeric: tabular-nums; }
+.horario tr.es-hoy th, .horario tr.es-hoy td { font-weight: 700; color: var(--tinta); }
+.horario tr.es-hoy th::after { content: " (hoy)"; font-weight: 400; color: var(--texto-2); }
+.botones-donde { display: flex; flex-wrap: wrap; gap: 12px; }
+.opiniones { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 24px; }
+.opiniones-texto { margin: 0; max-width: 22ch; font-family: var(--f-rotulo); font-weight: 800; font-size: clamp(1.875rem, 4.5vw, 2.75rem); line-height: 1; color: var(--tinta); }
+.pie { padding: 40px 0 48px; border-top: 1px solid var(--linea); color: var(--texto-2); font-size: 0.9375rem; }
+.pie-marca { display: block; margin-bottom: 8px; font-family: var(--f-rotulo); font-weight: 900; font-size: 2rem; text-transform: uppercase; color: var(--tinta); }
+.pie p { margin: 0 0 6px; }
+
+/* ---------- 10. Barra fija del móvil ---------- */
+.barra-movil {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 30;
+  display: flex;
+  gap: 10px;
+  padding: 10px var(--hueco-der) calc(10px + env(safe-area-inset-bottom)) var(--hueco-izq);
+  background: #FFFFFF;
+  border-top: 1px solid #D8E1D2;
+  --tinta: #1F5A33;
+  --tinta-suave: #2B7243;
+  --papel: #FFFFFF;
+  --papel-2: #E9F2E0;
+}
+.barra-movil .boton { flex: 1; }
+
+/* ---------- 11. Pantallas medianas y grandes (versión normal) ---------- */
+@media (min-width: 760px) {
+  body { padding-bottom: 0; }
+  .barra-movil { display: none; }
+  .cabecera { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding-top: 14px; padding-bottom: 14px; background: #FFFFFF; max-width: none; }
+  .acciones { display: flex; }
+  .hora-intermedia { display: block; }
+  .tramo { padding: 0 8px; font-size: 0.8125rem; }
+  .tapa-ofertas { grid-template-columns: 1fr 1fr; }
+}
+@media (min-width: 880px) {
+  .donde { grid-template-columns: 1fr 1.2fr; align-items: start; }
+
+  /* Versión normal en pantalla grande: imagen y carta lado a lado, alternando el lado en cada sección. */
+  html:not(.pelicula) .escena-tapa,
+  html:not(.pelicula) .escena-plato,
+  html:not(.pelicula) .escena-bocadillo,
+  html:not(.pelicula) .escena-burger,
+  html:not(.pelicula) .escena-racion {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: center;
+    column-gap: 56px;
+    padding-top: 64px;
+    padding-bottom: 64px;
+  }
+  html:not(.pelicula) .escena-tapa { grid-template-areas: "intro foto" "tapa foto"; align-items: start; }
+  html:not(.pelicula) .escena-tapa .carta-intro { grid-area: intro; }
+  html:not(.pelicula) .escena-tapa .tapa { grid-area: tapa; }
+  html:not(.pelicula) .escena-tapa .pieza-cafe { grid-area: foto; align-self: center; }
+  html:not(.pelicula) .pieza { max-width: none; }
+  html:not(.pelicula) .pieza img { height: auto; max-height: 520px; object-fit: contain; }
+  html:not(.pelicula) .escena-bocadillo .hoja, html:not(.pelicula) .escena-racion .hoja { order: -1; }
+  html:not(.pelicula) .hoja { max-width: none; }
+  html:not(.pelicula) .desfile { grid-template-columns: repeat(4, 1fr); }
+  html:not(.pelicula) .desfile .pieza img { height: 230px; object-fit: cover; }
+}
+
+
+/* =====================================================================
+   12. LA PELÍCULA
+   ===================================================================== */
+.pelicula #pelicula {
+  /* Altura = duración de la película: cuanta más altura, más scroll hay para reproducirla. */
+  height: calc(var(--pantallas, 29) * 100vh);
+  height: calc(var(--pantallas, 29) * 100lvh);
+}
+.pelicula #escenario {
+  /* "sticky" deja el escenario clavado en pantalla mientras #pelicula pasa por detrás.
+     Lo hace el propio navegador, sin JavaScript: por eso no tiembla en el móvil. */
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  height: 100lvh;
+  overflow: hidden;
+  isolation: isolate;
+  background: #F6F1E4;
+}
+.pelicula .aviso {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 40;
+  padding: 5px var(--hueco-der) 5px var(--hueco-izq);
+  font-size: 0.75rem;
+  line-height: 1.3;
+}
+.pelicula .cabecera {
+  position: fixed;
+  top: calc(var(--aviso) + 10px);
+  left: 16px;
+  right: 16px;
+  z-index: 35;
+  max-width: none;
+  padding: 6px 8px 6px 22px;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 999px;
+  box-shadow: 0 8px 24px -14px rgba(0, 0, 0, 0.45);
+  --tinta: #1F5A33;
+  --tinta-suave: #2B7243;
+  --papel: #FFFFFF;
+}
+.pelicula.pelicula-acabada .cabecera { opacity: 0; pointer-events: none; }
+.pelicula .cabecera { transition: opacity 0.25s; }
+
+/* ----- El cielo: capas de color fundiéndose. Se anima solo la opacidad: es lo más ligero para el navegador. ----- */
+.pelicula .cielo { display: block; position: absolute; inset: 0; opacity: 0; z-index: 0; }
+.pelicula .cielo-crema { opacity: 1; background: radial-gradient(120% 90% at 22% 0%, #FFFCF2 0%, #F6F1E4 46%, #E7DBC2 100%); }
+.pelicula .cielo-claro { background: radial-gradient(110% 90% at 70% 8%, #F7FBF0 0%, #E4EFD6 55%, #CADFB6 100%); }
+.pelicula .cielo-verde { background: radial-gradient(100% 90% at 34% 22%, #3D8E57 0%, #2B7243 52%, #1E5A34 100%); }
+.pelicula .cielo-arena { background: radial-gradient(110% 90% at 72% 12%, #FBEFCF 0%, #EFD9A8 55%, #D9B878 100%); }
+.pelicula .cielo-oscuro { background: radial-gradient(90% 85% at 62% 34%, #2B7243 0%, #1F5A33 48%, #113A20 100%); }
+.pelicula .cielo-noche { background: radial-gradient(80% 75% at 38% 40%, #1E4029 0%, #12261A 55%, #090F0B 100%); }
+
+.pelicula .capa { display: block; position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.pelicula #capa-atras { z-index: 1; }
+.pelicula #capa-delante { z-index: 20; }
+.pelicula .grano-pelicula {
+  display: block;
+  position: absolute;
+  inset: -60px;
+  z-index: 25;
+  pointer-events: none;
+  background: url(../img/grano.webp);
+  opacity: 0.5;
+  animation: grano 0.9s steps(5) infinite;
+}
+@keyframes grano {
+  0% { transform: translate(0, 0); }
+  20% { transform: translate(-24px, 14px); }
+  40% { transform: translate(18px, -26px); }
+  60% { transform: translate(-12px, -18px); }
+  80% { transform: translate(26px, 20px); }
+  100% { transform: translate(0, 0); }
+}
+
+/* ----- Las escenas: una encima de otra. GSAP enciende y apaga cada una. ----- */
+.pelicula .escena {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 100vh;
+  height: 100svh;       /* la altura pequeña del móvil: nada queda detrás de su barra de direcciones */
+  padding: 0;
+  background: none;
+  overflow: visible;
+  z-index: 2;
+  --lado: min(90vw, 50svh);
+  --arriba: calc(var(--aviso) + 12px);
+  --abajo: calc(80px + env(safe-area-inset-bottom));  /* lo que ocupa la barra fija del móvil */
+}
+.pelicula .pieza { position: absolute; left: calc(50% - var(--lado) / 2); top: calc(var(--arriba) + 2svh); width: var(--lado); height: var(--lado); margin: 0; max-width: none; will-change: transform; }
+.pelicula .pieza img { display: none; }
+.pelicula .pieza canvas { display: block; width: 100%; height: 100%; }
+
+.pelicula .gigante {
+  position: absolute;
+  top: 24%;
+  left: 0;
+  margin: 0;
+  white-space: nowrap;
+  font-family: var(--f-rotulo);
+  font-weight: 900;
+  font-size: 34vh;
+  line-height: 0.8;
+  text-transform: uppercase;
+  color: var(--gigante);
+  will-change: transform;
+  pointer-events: none;
+}
+
+/* ----- Portada ----- */
+.pelicula #inicio { --rot: min(calc((100vw - 28px) * 0.232), 36svh); z-index: 2; }
+.pelicula .rotulo {
+  position: absolute;
+  top: calc(var(--arriba) + 2px);
+  left: 0;
+  right: 0;
+  margin: 0;
+  text-align: center;
+  font-size: var(--rot);
+  line-height: 0.84;
+  white-space: nowrap;
+  animation: subir 0.9s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+.pelicula .rotulo span { will-change: transform; }
+.pelicula .portada-textos {
+  position: absolute;
+  top: calc(var(--arriba) + var(--rot) * 0.88 + 6px);
+  left: var(--hueco-izq);
+  right: var(--hueco-der);
+  animation: subir 0.9s 0.12s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+.pelicula .portada-sitio { font-size: 0.8125rem; margin: 0 0 2px; line-height: 1.3; }
+.pelicula .portada-lema { font-size: 0.9375rem; line-height: 1.35; margin: 0 0 4px; max-width: 40ch; }
+.pelicula .portada-izq .enlace-texto { display: inline-block !important; margin: 0 0 8px; }
+.pelicula .estado { font-size: 1.5rem; gap: 10px; }
+.pelicula .punto { width: 12px; height: 12px; }
+.pelicula .estado-detalle { margin: 2px 0 0; font-size: 0.875rem; line-height: 1.3; }
+.pelicula .acciones { display: none; }
+@keyframes subir { from { opacity: 0; transform: translateY(26px); } to { opacity: 1; transform: none; } }
+
+.pelicula .pista {
+  position: absolute;
+  bottom: calc(var(--abajo) + 6px);
+  left: 0;
+  right: 0;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  font-weight: 700;
+  font-size: 0.8125rem;
+  color: var(--tinta);
+}
+.pista-flecha { display: inline-block; width: 9px; height: 9px; border-right: 2.5px solid currentColor; border-bottom: 2.5px solid currentColor; transform: rotate(45deg); animation: invita 1.3s ease-in-out infinite; }
+@keyframes invita { 0%, 100% { translate: 0 -3px; } 50% { translate: 0 3px; } }
+
+/* ----- Con tapa ----- */
+.pelicula .escena-tapa { z-index: 3; pointer-events: none; }
+.pelicula .escena-tapa a { pointer-events: auto; }
+.pelicula .gigante-tapa { color: rgba(31, 90, 51, 0.12); }
+.pelicula .pieza-cafe { top: calc(var(--arriba) + 8svh); }
+.pelicula .pieza-croissant { --lado: min(62vw, 32svh); left: -2vw; top: calc(100svh - var(--abajo) - var(--lado) - 150px); }
+.pelicula .carta-intro { position: absolute; margin: 0; max-width: none; top: var(--arriba); left: var(--hueco-izq); right: var(--hueco-der); }
+.pelicula .carta-intro .titulo { font-size: 2.25rem; margin: 0 0 2px; }
+.pelicula .carta-intro .entradilla { font-size: 0.875rem; line-height: 1.35; margin: 0 0 4px; }
+.pelicula .enlace-texto { font-size: 0.8125rem; }
+.pelicula .tapa {
+  position: absolute;
+  max-width: none;
+  left: var(--hueco-izq);
+  right: var(--hueco-der);
+  bottom: var(--abajo);
+  margin: 0;
+  padding: 14px 18px 16px;
+  box-shadow: 0 26px 50px -22px rgba(0, 0, 0, 0.55);
+}
+.pelicula .tapa-titulo { font-size: 1.375rem; margin: 0 0 8px; }
+.pelicula .tapa-ofertas { grid-template-columns: 1fr 1fr; gap: 12px; }
+.pelicula .tapa-precio { font-size: 2.75rem; }
+.pelicula .tapa-que { font-size: 0.875rem; line-height: 1.25; }
+
+/* Espuma: un círculo exactamente sobre el café de la taza (ocupa el 31,6% del encuadre, centrado). */
+.pelicula .espuma {
+  position: absolute;
+  z-index: 2;
+  left: 34.2%;
+  top: 34.2%;
+  width: 31.6%;
+  height: 31.6%;
+  border-radius: 50%;
+  overflow: hidden;
+  /* El borde del círculo se funde: así no se nota dónde acaba esta imagen y dónde sigue la taza. */
+  -webkit-mask-image: radial-gradient(closest-side, #000 84%, transparent 100%);
+  mask-image: radial-gradient(closest-side, #000 84%, transparent 100%);
+}
+.pelicula .pieza .espuma img { display: block; width: 100%; height: 100%; object-fit: cover; }
+
+/* ----- Aperitivo ----- */
+.pelicula .aperitivo-texto { position: absolute; margin: 0; max-width: none; z-index: 5; top: var(--arriba); left: var(--hueco-izq); right: var(--hueco-der); }
+.pelicula .aperitivo-texto .titulo { font-size: 2.5rem; margin: 0 0 4px; }
+.pelicula .aperitivo-texto .entradilla { font-size: 0.9375rem; margin: 0; }
+.pelicula .desfile { position: absolute; inset: 0; display: block; max-width: none; margin: 0; }
+.pelicula .pieza-pincho { --lado: min(92vw, 58svh); top: calc(50svh - var(--lado) / 2 + 3svh); }
+.pelicula .gigante-aperitivo { top: 50%; }
+
+/* ----- Hoja de la carta: una hoja de papel que te ponen delante -----
+   En todos los tamaños, la hoja y la comida van lado a lado (en horizontal), alternando el lado en cada escena.
+   En el móvil la hoja ocupa algo más de la mitad derecha y la comida asoma por la izquierda, un poco por detrás. */
+.pelicula .hoja {
+  position: absolute;
+  z-index: 6;
+  left: auto;
+  right: 10px;
+  width: 56vw;
+  --hoja-arriba: var(--arriba);
+  top: var(--hoja-arriba);
+  bottom: var(--abajo);
+  /* Mide lo que mida su contenido, como mucho hasta llenar el hueco; si no cabe, la lista corre por dentro. */
+  height: fit-content;
+  max-height: calc(100svh - var(--hoja-arriba) - var(--abajo));
+  margin-top: auto;
+  margin-bottom: auto;
+  max-width: none;
+  display: flex;
+  flex-direction: column;
+  padding: 12px 12px 4px;
+  box-shadow: 0 30px 60px -24px rgba(0, 0, 0, 0.6);
+  will-change: transform;
+}
+.pelicula .categoria-titulo { font-size: 1.5rem; padding-bottom: 6px; margin: 0 0 2px; flex: none; }
+.pelicula .visor {
+  flex: 0 1 auto;
+  min-height: 0;
+  overflow: hidden;
+  /* Las filas aparecen y desaparecen fundiéndose, como los créditos de una película. */
+  -webkit-mask-image: linear-gradient(transparent, #000 5px, #000 calc(100% - 24px), transparent);
+  mask-image: linear-gradient(transparent, #000 5px, #000 calc(100% - 24px), transparent);
+}
+.pelicula .rollo { padding-bottom: 20px; will-change: transform; }
+.pelicula .plato { padding: 6px 0; font-size: 0.9375rem; line-height: 1.3; gap: 8px; }
+.pelicula .subcategoria { margin: 12px 0 0; font-size: 0.9375rem; }
+.pelicula .categoria-nota, .pelicula .nota-carta { font-size: 0.8125rem; margin-top: 8px; }
+.pelicula .raciones th, .pelicula .raciones td { padding: 6px 0; font-size: 0.9375rem; }
+.pelicula .raciones td, .pelicula .raciones thead th + th { width: 4.6em; }
+
+.pelicula .hoja-izquierda { right: auto; left: 10px; }
+
+/* La comida, al lado contrario de la hoja. */
+.pelicula .escena-plato .pieza, .pelicula .escena-bocadillo .pieza, .pelicula .escena-burger .pieza, .pelicula .escena-racion .pieza {
+  --lado: min(52vw, 70svh);
+  top: calc(50svh - var(--lado) / 2 + 3svh);
+  left: -3vw;
+}
+.pelicula .escena-burger .pieza { --lado: min(72vw, 72svh); left: -9vw; }
+.pelicula .escena-bocadillo .pieza, .pelicula .escena-racion .pieza { left: auto; right: -3vw; }
+
+/* En el móvil, la hoja es estrecha: letra un poco más pequeña para que quepan nombre, puntos y precio. */
+@media (max-width: 599px) {
+  .pelicula .categoria-titulo { font-size: 1.25rem; }
+  .pelicula .plato { padding: 5px 0; font-size: 0.8125rem; gap: 6px; }
+  .pelicula .plato::after { flex-basis: 6px; }
+  .pelicula .numerada .plato::before { width: 1.5em; }
+  .pelicula .subcategoria { margin: 10px 0 0; font-size: 0.8125rem; }
+  .pelicula .raciones th, .pelicula .raciones td { padding: 5px 0; font-size: 0.8125rem; }
+  .pelicula .raciones thead th { font-size: 0.75rem; }
+  .pelicula .raciones td, .pelicula .raciones thead th + th { width: 3.9em; }
+  .pelicula .categoria-nota, .pelicula .nota-carta { font-size: 0.75rem; }
+}
+
+/* Tabletas y ventanas medianas: la hoja deja más sitio a la comida. */
+@media (min-width: 600px) and (max-width: 879px) {
+  .pelicula .hoja { width: min(50vw, 420px); right: 3vw; padding: 16px 18px 6px; }
+  .pelicula .hoja-izquierda { right: auto; left: 3vw; }
+  .pelicula .escena-plato .pieza, .pelicula .escena-bocadillo .pieza, .pelicula .escena-racion .pieza { --lado: min(56vw, 80svh); left: -2vw; }
+  .pelicula .escena-bocadillo .pieza, .pelicula .escena-racion .pieza { left: auto; right: -2vw; }
+  .pelicula .escena-burger .pieza { --lado: min(60vw, 84svh); left: -2vw; }
+}
+
+/* ----- Cierre ----- */
+.pelicula .escena-cierre {
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: var(--arriba) var(--hueco-der) var(--abajo) var(--hueco-izq);
+}
+/* Al final de la película, el suelo se funde con el color de la sección siguiente: no se ve el corte. */
+.pelicula .escena-cierre::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  left: 0;
+  right: 0;
+  bottom: calc(100svh - 100lvh);
+  height: 34%;
+  background: linear-gradient(transparent, #090F0B 92%);
+}
+.cierre-hora { margin: 0; font-family: var(--f-rotulo); font-weight: 800; font-size: 2.25rem; line-height: 1; color: var(--tinta); font-variant-numeric: tabular-nums; }
+.cierre-rotulo { margin: 4px 0 8px; font-family: var(--f-rotulo); font-weight: 900; font-size: min(calc((100vw - 28px) * 0.232), 30svh); line-height: 0.86; text-transform: uppercase; color: var(--tinta); }
+.cierre-texto { margin: 0 0 14px; font-size: 1.0625rem; }
+.pelicula .escena-cierre .estado { justify-content: center; }
+.pelicula .escena-cierre .estado-detalle { color: var(--texto-2); margin: 4px 0 20px; }
+.cierre-seguir { display: inline-flex; align-items: center; gap: 10px; font-weight: 700; color: var(--tinta); text-decoration: none; }
+
+/* ----- Mini botón play/stop -----
+   En el móvil se coloca dentro de la barra de abajo, a la derecha de "Cómo llegar", para no tapar nada. */
+.play {
+  position: fixed;
+  z-index: 32;
+  right: var(--hueco-der);
+  bottom: calc(10px + env(safe-area-inset-bottom));
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: #1F5A33;
+  color: #FFFFFF;
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.9), 0 10px 24px -10px rgba(0, 0, 0, 0.6);
+  transition: transform 0.3s, opacity 0.25s, background-color 0.15s;
+}
+.play:hover { background: #2B7243; }
+.icono-play { margin-left: 2px; }    /* el triángulo se ve centrado si se desplaza un pelín a la derecha */
+.icono-stop { display: none; }
+.reproduciendo .icono-play { display: none; }
+.reproduciendo .icono-stop { display: block; }
+.pelicula-acabada .play { transform: scale(0.6); opacity: 0; pointer-events: none; }
+/* Hueco a la derecha de la barra del móvil para el botón, mientras dura la película. */
+.pelicula:not(.pelicula-acabada) .barra-movil { padding-right: calc(var(--hueco-der) + 60px); }
+.pelicula .barra-movil .boton { padding: 0 12px; font-size: 0.9375rem; white-space: nowrap; }   /* "Cómo llegar" en una sola línea */
+
+/* ---------- 13. La película en pantallas grandes ---------- */
+@media (min-width: 760px) {
+  .pelicula .barra-movil { display: none; }
+  .play { right: 20px; bottom: 20px; width: 46px; height: 46px; }
+  .pelicula .escena { --abajo: 76px; --arriba: calc(var(--aviso) + 70px); }
+}
+
+@media (min-width: 880px) {
+  .pelicula .escena { --lado: min(54vw, 84svh); --arriba: calc(var(--aviso) + 70px); --abajo: 76px; }
+
+  .pelicula #inicio { --rot: min(calc((100vw - 56px) * 0.232), 38svh); }
+  .pelicula .rotulo { top: var(--arriba); }
+  .pelicula .portada-textos {
+    top: auto;
+    bottom: calc(var(--abajo) + 18px);
+    left: 32px;
+    right: 32px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 40px;
+  }
+  .pelicula .portada-izq { max-width: 22vw; min-width: 240px; }
+  .pelicula .portada-der { max-width: 24vw; min-width: 260px; text-align: right; }
+  .pelicula .portada-der .estado { justify-content: flex-end; }
+  .pelicula .portada-sitio { font-size: 0.9375rem; margin: 0 0 8px; }
+  .pelicula .portada-lema { font-size: 1.1875rem; margin: 0 0 8px; }
+  .pelicula .portada-izq .enlace-texto { margin: 0; }
+  .pelicula .estado { font-size: 2.25rem; }
+  .pelicula .estado-detalle { font-size: 1rem; margin-top: 6px; }
+  .pelicula .acciones { display: flex; justify-content: flex-end; margin-top: 16px; }
+  .pelicula .acciones .boton { min-height: 44px; padding: 0 18px; font-size: 0.9375rem; }
+
+  .pelicula .pieza-cafe { top: calc(50svh - var(--lado) / 2 + 3svh); }
+  .pelicula .pieza-croissant { --lado: min(30vw, 46svh); left: 3vw; top: auto; bottom: calc(var(--abajo) - 2svh); }
+  .pelicula .carta-intro { top: calc(var(--arriba) + 4svh); left: 40px; right: auto; width: min(26vw, 340px); }
+  .pelicula .carta-intro .titulo { font-size: clamp(2.5rem, 4.4vw, 4rem); margin: 0 0 8px; }
+  .pelicula .carta-intro .entradilla { font-size: 1rem; margin: 0 0 10px; }
+  .pelicula .enlace-texto { font-size: 0.9375rem; }
+  .pelicula .tapa { left: auto; right: 40px; bottom: auto; top: 50%; translate: 0 -46%; width: min(24vw, 310px); padding: 26px 26px 28px; }
+  .pelicula .tapa-titulo { font-size: 2rem; margin: 0 0 16px; }
+  .pelicula .tapa-ofertas { grid-template-columns: 1fr; gap: 18px; }
+  .pelicula .tapa-precio { font-size: clamp(3rem, 5vw, 4.5rem); }
+  .pelicula .tapa-que { font-size: 1rem; }
+
+  .pelicula .aperitivo-texto { top: calc(var(--arriba) + 4svh); left: 40px; right: auto; width: min(34vw, 460px); }
+  .pelicula .aperitivo-texto .titulo { font-size: clamp(2.75rem, 5vw, 4.5rem); margin: 0 0 10px; }
+  .pelicula .aperitivo-texto .entradilla { font-size: 1.0625rem; }
+  .pelicula .pieza-pincho { --lado: min(56vw, 84svh); top: calc(50svh - var(--lado) / 2 + 3svh); left: calc(50% - var(--lado) / 2 + 12vw); }
+  .pelicula .gigante { font-size: 58vh; top: 50%; }
+
+  .pelicula .hoja { --hoja-arriba: var(--arriba); margin-bottom: auto; left: auto; right: 4vw; width: min(36vw, 480px); padding: 22px 26px 8px; }
+  .pelicula .hoja-izquierda { right: auto; left: 4vw; }
+  .pelicula .categoria-titulo { font-size: 2rem; padding-bottom: 8px; }
+  .pelicula .plato { padding: 7px 0; font-size: 1rem; }
+  .pelicula .subcategoria { font-size: 1rem; margin: 14px 0 0; }
+  .pelicula .raciones th, .pelicula .raciones td { padding: 9px 0; font-size: 1rem; }
+  .pelicula .categoria-nota, .pelicula .nota-carta { font-size: 0.9375rem; margin-top: 12px; }
+
+  /* La comida al lado contrario de la hoja. */
+  .pelicula .escena-plato .pieza { --lado: min(60vw, 92svh); top: calc(50svh - var(--lado) / 2 + 3svh); left: 0vw; }
+  .pelicula .escena-bocadillo .pieza { --lado: min(60vw, 92svh); top: calc(50svh - var(--lado) / 2 + 2svh); left: auto; right: 0vw; }
+  .pelicula .escena-burger .pieza { --lado: min(56vw, 92svh); top: calc(50svh - var(--lado) / 2 + 2svh); left: 3vw; }
+  .pelicula .escena-racion .pieza { --lado: min(60vw, 92svh); top: calc(50svh - var(--lado) / 2 + 3svh); left: auto; right: 0vw; }
+
+  .cierre-hora { font-size: 3.5rem; }
+  .cierre-rotulo { font-size: min(calc((100vw - 56px) * 0.232), 42svh); }
+  .cierre-texto { font-size: 1.25rem; }
+}
+
+/* Si el aviso ocupa más líneas o la pantalla es muy bajita, la carta manda sobre los adornos. */
+@media (max-height: 640px) and (max-width: 879px) {
+  .pelicula .portada-lema { display: none; }
+}

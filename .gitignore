@@ -1,0 +1,5 @@
+# Copias para enviar por otras vías y carpetas de trabajo: no forman parte de la web
+compartir/
+raw/
+__pycache__/
+.DS_Store
